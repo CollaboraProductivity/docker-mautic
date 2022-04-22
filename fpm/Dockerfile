@@ -1,4 +1,4 @@
-FROM php:7.4.28-fpm
+FROM php:7.4.29-fpm
 
 LABEL vendor="Mautic"
 LABEL maintainer="Luiz Eduardo Oliveira Fonseca <luiz@powertic.com>"
