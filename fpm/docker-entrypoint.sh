@@ -1,6 +1,51 @@
 #!/bin/bash
 set -e
 
+# Logging functions
+mautic_log() {
+    local type="$1"; shift
+    printf '%s [%s] [Entrypoint]: %s\n' "$(date --rfc-3339=seconds)" "$type" "$*"
+}
+mautic_info() {
+    mautic_log Note "$@"
+}
+mautic_warn() {
+    mautic_log Warn "$@" >&2
+}
+mautic_error() {
+    mautic_log ERROR "$@" >&2
+    exit 1
+}
+
+# A function to export the env variable be it a variable or a file (for Docker
+# secrets). If both variants are defined, an error is raised and the entry
+# point stops.
+# Param 1 (mandatory): the name of the variable (not the value!)
+# Param 2 (optional) : the default value for this variable
+# Inspiration taken from MariaDB entry point:
+# src.: https://github.com/MariaDB/mariadb-docker/blob/master/10.8/docker-entrypoint.sh
+get_env_file() {
+    local var="$1"
+    local fileVar="${var}_FILE"
+    if [ "${!var}" ] && [ "${!fileVar}" ]; then
+        mautic_error "Both '$var' and '$fileVar' are set (but are exclusive)"
+    fi
+    local value="$2"
+    if [ "${!var}" ]; then
+        value="${!var}"
+    elif [ "${!fileVar}" ]; then
+        value="$(< "${!fileVar}")"
+    fi
+    export "$var"="$value"
+    mautic_info "var='$var' | value='"$value"'"
+    unset "$fileVar"
+}
+
+get_env_file 'MAUTIC_DB_HOST'
+get_env_file 'MAUTIC_DB_NAME'
+get_env_file 'MAUTIC_DB_USER'
+get_env_file 'MAUTIC_DB_PASSWORD'
+
 if [ ! -f /usr/local/etc/php/php.ini ]; then
 	cat <<EOF > /usr/local/etc/php/php.ini
 date.timezone = "${PHP_INI_DATE_TIMEZONE}"
