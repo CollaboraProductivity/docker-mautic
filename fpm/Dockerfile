@@ -1,4 +1,4 @@
-FROM php:7.4.29-fpm
+FROM php:8.0-fpm
 
 LABEL vendor="Mautic"
 LABEL maintainer="Luiz Eduardo Oliveira Fonseca <luiz@powertic.com>"
@@ -35,8 +35,8 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin -
 VOLUME /var/www/html
 
 # Define Mautic version and expected SHA1 signature
-ENV MAUTIC_VERSION 4.2.2
-ENV MAUTIC_SHA1 c7f15eb2edf0ad60b1cfc16ff9291eb424cac1c4
+ENV MAUTIC_VERSION 4.4.9
+ENV MAUTIC_SHA1 1f7d5461f40e7e023b022d31be73fbd11804b09b
 
 # By default enable cron jobs
 ENV MAUTIC_RUN_CRON_JOBS true
@@ -48,7 +48,7 @@ ENV MAUTIC_DB_NAME mautic
 # Setting PHP properties
 ENV PHP_INI_DATE_TIMEZONE='UTC' \
     PHP_MEMORY_LIMIT=512M \
-    PHP_MAX_UPLOAD=128M \
+    PHP_MAX_UPLOAD=512M \
     PHP_MAX_EXECUTION_TIME=300
 
 # Download package and extract to web volume
